@@ -1,0 +1,42 @@
+name: Build AURA Glass Clock Widget APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'clockwidget/**'
+      - 'settings.gradle'
+      - 'build.gradle'
+      - '.github/workflows/build-glass-clock.yml'
+  workflow_dispatch:
+jobs:
+  build-clock:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install Android SDK 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Compile standalone clock widget
+        run: gradle --no-daemon :clockwidget:assembleDebug
+      - name: Validate compiled APK
+        run: |
+          test -s clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
+          ls -lh clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
+          sha256sum clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
+      - name: Upload LG V50 widget APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AURA-Glass-Clock-LG-V50-APK
+          path: clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
+          if-no-files-found: error
