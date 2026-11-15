@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">AURA Glass Clock</string>
+    <string name="widget_desc">Đồng hồ kính lỏng trong suốt, chỉ hiển thị giờ và phút</string>
+</resources>
