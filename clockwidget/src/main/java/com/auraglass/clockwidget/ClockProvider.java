@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.RemoteViews;
+import android.view.View;
 
 public class ClockProvider extends AppWidgetProvider {
     public static final String ACTION_TICK="com.auraglass.clockwidget.UPDATE_TIME";
@@ -70,6 +71,7 @@ public class ClockProvider extends AppWidgetProvider {
         Bitmap bitmap=GlassArt.render(c,time,width,height,mode,strength);
         RemoteViews views=new RemoteViews(c.getPackageName(),R.layout.glass_clock_widget);
         views.setImageViewBitmap(R.id.glass_time,bitmap);
+        views.setViewVisibility(R.id.backup_clock,View.GONE);
         views.setContentDescription(R.id.glass_time,"Đồng hồ "+time);
         Intent open=new Intent(c,MainActivity.class);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
