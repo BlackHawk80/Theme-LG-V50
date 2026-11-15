@@ -4,6 +4,20 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
     android:clipToPadding="false">
+    <TextClock
+        android:id="@+id/backup_clock"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:format12Hour="HH:mm"
+        android:format24Hour="HH:mm"
+        android:textSize="59sp"
+        android:textStyle="bold"
+        android:textColor="#DCEFFF"
+        android:shadowColor="#BF50D6FF"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:shadowRadius="10"/>
     <ImageView
         android:id="@+id/glass_time"
         android:layout_width="match_parent"
