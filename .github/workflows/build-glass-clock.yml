@@ -34,6 +34,10 @@ jobs:
           test -s clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
           ls -lh clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
           sha256sum clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
+      - name: Verify Android APK signing and package
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs clockwidget/build/outputs/apk/debug/clockwidget-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging clockwidget/build/outputs/apk/debug/clockwidget-debug.apk | head -n 12
       - name: Upload LG V50 widget APK
         uses: actions/upload-artifact@v4
         with:
