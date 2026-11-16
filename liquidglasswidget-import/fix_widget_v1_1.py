@@ -11,7 +11,7 @@ xml = xml.replace("<View\n", "<TextView\n")
 
 # Change weekday highlight without invoking the forbidden setBackgroundResource method.
 # Static image resources are shown/hidden via the supported setViewVisibility API.
-pattern = re.compile(r'<TextView (?P<attrs>android:id="@\\+id/tv_week_(?P<index>[0-6])"[^>]+)\\s*/>')
+pattern = re.compile(r'<TextView (?P<attrs>android:id="@\+id/tv_week_(?P<index>[0-6])"[^>]+)\s*/>')
 
 def replace_day(match):
     index = int(match.group("index"))
