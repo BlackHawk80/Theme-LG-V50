@@ -1,0 +1,49 @@
+name: Build uploaded LiquidGlassWidget APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'liquidglasswidget-import/**'
+      - '.github/workflows/build-liquidglasswidget-upload.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.4'
+      - name: Restore submitted Android sources
+        run: |
+          base64 --decode liquidglasswidget-import/source.tar.xz.b64 > /tmp/liquidglasswidget.tar.xz
+          echo "4e1d6f1569e72623c081ca3d91fbcfde91463e75d4a79d4fd8bc4e4a9504045b  /tmp/liquidglasswidget.tar.xz" | sha256sum -c -
+          tar -xJf /tmp/liquidglasswidget.tar.xz
+          test -f LiquidGlassWidget/app/src/main/AndroidManifest.xml
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+      - name: Build original user-submitted Kotlin widget
+        working-directory: LiquidGlassWidget
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+      - name: Verify output
+        run: |
+          test -s LiquidGlassWidget/app/build/outputs/apk/debug/app-debug.apk
+          file LiquidGlassWidget/app/build/outputs/apk/debug/app-debug.apk
+          sha256sum LiquidGlassWidget/app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiquidGlassWidget-LG-V50-APK
+          path: LiquidGlassWidget/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
