@@ -1,4 +1,4 @@
-name: Build uploaded LiquidGlassWidget APK
+name: Build LiquidGlassWidget LG V50 Fixed v1.1
 
 on:
   push:
@@ -31,9 +31,26 @@ jobs:
           echo "4e1d6f1569e72623c081ca3d91fbcfde91463e75d4a79d4fd8bc4e4a9504045b  /tmp/liquidglasswidget.tar.xz" | sha256sum -c -
           tar -xJf /tmp/liquidglasswidget.tar.xz
           test -f LiquidGlassWidget/app/src/main/AndroidManifest.xml
+      - name: Apply LG V50 RemoteViews compatibility patch
+        run: python3 liquidglasswidget-import/fix_widget_v1_1.py
+      - name: Validate RemoteViews safety
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          layout=Path("LiquidGlassWidget/app/src/main/res/layout/widget_liquid_glass.xml")
+          xml=layout.read_text()
+          assert "<View" not in xml
+          assert xml.count('android:id="@+id/bg_week_')==7
+          ET.fromstring(xml)
+          source=Path("LiquidGlassWidget/app/src/main/java/com/example/liquidglasswidget/LiquidGlassWidgetProvider.kt").read_text()
+          assert "setBackgroundResource" not in source
+          assert "setViewVisibility" in source
+          print("RemoteViews safety guards passed")
+          PY
       - name: Install Android SDK
         run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
-      - name: Build original user-submitted Kotlin widget
+      - name: Compile corrected LG V50 Kotlin widget
         working-directory: LiquidGlassWidget
         run: gradle --no-daemon --stacktrace :app:assembleDebug
       - name: Verify output
@@ -44,6 +61,6 @@ jobs:
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: LiquidGlassWidget-LG-V50-APK
+          name: LiquidGlassWidget-LG-V50-Fixed-v1.1-APK
           path: LiquidGlassWidget/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
